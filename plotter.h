@@ -4,17 +4,23 @@
 #include <QWidget>
 #include <QPainter>
 #include <QPaintEvent>
+#include <QBasicTimer>
 
 class plotter : public QWidget
 {
     Q_OBJECT
 public:
     explicit plotter(QWidget *parent = 0);
+    ~plotter();
 private:
     void paintEvent(QPaintEvent *event);
+    void timerEvent(QTimerEvent *event);
     void drawGrid(QPainter *);
     int XRows;
     int YCols;
+private:
+    QBasicTimer m_timer;
+    int m_nStep;
 
 signals:
 

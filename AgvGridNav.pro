@@ -5,6 +5,7 @@
 #-------------------------------------------------
 
 QT       += core gui
+QT       += serialport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -25,9 +26,20 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    plotter.cpp
+    plotter.cpp \
+    PGV100.cpp \
+    ros_pgv100.cpp \
+    Rs485.cpp \
+    serial485.cpp \
+    GraphSearch.cpp
 
 HEADERS  += mainwindow.h \
-    plotter.h
+    plotter.h \
+    Measure.h \
+    PGV100.h \
+    Rs485.h \
+    cserial.h \
+    serial485.h \
+    GraphSearch.h
 
 FORMS    += mainwindow.ui
