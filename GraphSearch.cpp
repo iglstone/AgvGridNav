@@ -4,22 +4,30 @@
 #include <iostream>
 #include <sstream>
 #include <stdio.h>
+#include <string.h>
 
 #define INTMAX 65535
 
 GraphSearch::GraphSearch()
 {
-    vexsPre2DTabel preTable = {0};
-    distancesSum2DTabel disSumTable = {0};
-    vexAngels angels = {0};
+//    vexsPre2DTable vexPreTable = {0};
+//    distancesSum2DTable distancesSumTable = {0};
+//    vexAngels finalAngels = {0};
+
+//    this->vexPreTable = {0};
+//    this->distancesSumTable = {0};
+//    this->finalAngels = {0};
+
+    memset(vexPreTable,0,sizeof(vexPreTable));
+    memset(distancesSumTable,0,sizeof(distancesSumTable));
+    memset(finalAngels,0,sizeof(finalAngels));
 
     this->InitGraph(&m_graph, XNUM, YNUM);
+    this->FloydShortestPath(&m_graph, &vexPreTable, &distancesSumTable);
 
-    this->FloydShortestPath(&m_graph, &preTable, &disSumTable);
-
-    string path = this->FindShortestPath(&m_graph, 13, 7, &preTable, &angels);
+    // use like this:
+    string path = this->FindShortestPath( 13, 7);
     std::cout << path << std::endl;
-
 
 //    12--13--14--15
 //    |   |   |   |
@@ -30,7 +38,7 @@ GraphSearch::GraphSearch()
 //    0 --1 --2 --3
 
     //test 0-15 path
-    this->PrintShortestPath(&m_graph, &preTable, &disSumTable);
+    this->PrintShortestPath(&m_graph, &vexPreTable, &distancesSumTable);
 
 }
 
@@ -47,33 +55,33 @@ void GraphSearch::UpdateGraphWeights(SGraph *gragh, int point0, int point1)
     //gragh.weightAndAngels[end][start].weight = INTMAX;//反方向给堵住
 }
 
-string GraphSearch::FindShortestPath(SGraph *graph, int start, int end, vexsPre2DTabel *vexPreTabel, vexAngels *angels)
+string GraphSearch::FindShortestPath(int start, int end)
 {
-    int pointIndexFirst =  (*vexPreTabel)[start][end];//robot.pointNum;
-    int angelOfStart = graph->edges[start][pointIndexFirst].angel;
+    int pointIndexFirst =  vexPreTable[start][end];//robot.pointNum;
+    int angelOfStart = m_graph.edges[start][pointIndexFirst].angel;
     printf("%d -> (%d)%d -> ",start, angelOfStart, pointIndexFirst);
 
-    std::ostringstream ostr;
+    ostringstream ostr;
     ostr << start <<" -> (" << angelOfStart <<")" << pointIndexFirst << " -> (";
 
     while (pointIndexFirst != end)
     {
         int pointIndexSaveFirst = pointIndexFirst;
-        pointIndexFirst = (*vexPreTabel)[pointIndexFirst][end];     // get next vertex
-        int angelOfFirst = graph->edges[pointIndexSaveFirst][pointIndexFirst].angel;    //turn angel , not final angel
+        pointIndexFirst = vexPreTable[pointIndexFirst][end];     // get next vertex
+        int angelOfFirst = m_graph.edges[pointIndexSaveFirst][pointIndexFirst].angel;    //turn angel , not final angel
 
         printf("(%d)%d -> ",angelOfFirst, pointIndexFirst);
         ostr << angelOfFirst << ")" << pointIndexFirst << " -> (" ;
     }
-    printf("endAngel : %f \n", (*angels)[end]);
-    ostr << "AngelsEnd:" << (*angels)[end] << ")" << std::endl;
+    printf("endAngel : %f \n", (finalAngels)[end]);
+    ostr << "AngelsEnd:" << (finalAngels)[end] << ")" << std::endl;
 
     string tem = ostr.str();
 
     return tem;
 }
 
-void GraphSearch::PrintShortestPath(SGraph *graph, vexsPre2DTabel *vexPreTable, distancesSum2DTabel *distancesSumTable)
+void GraphSearch::PrintShortestPath(SGraph *graph, vexsPre2DTable *vexPreTable, distancesSum2DTable *distancesSumTable)
 {
     int v,w,k;
     //    for (v  = 0; v < graph->numVertexes; v++) {
@@ -94,7 +102,7 @@ void GraphSearch::PrintShortestPath(SGraph *graph, vexsPre2DTabel *vexPreTable, 
     }
 }
 
-bool GraphSearch::FloydShortestPath(SGraph *graph, vexsPre2DTabel *pointsPreTable, distancesSum2DTabel *distancesSumTable)
+bool GraphSearch::FloydShortestPath(SGraph *graph, vexsPre2DTable *vexPreTable, distancesSum2DTable *distancesSumTable)
 {
     int v,w,k;
 
@@ -107,7 +115,7 @@ bool GraphSearch::FloydShortestPath(SGraph *graph, vexsPre2DTabel *pointsPreTabl
                 continue;
             }
             (*distancesSumTable)[v][w] = graph->edges[v][w].weight;  //distances[v][w]为对应的权值
-            (*pointsPreTable)[v][w] = w;  //初始化points
+            (*vexPreTable)[v][w] = w;  //初始化points
         }
     }
 
@@ -122,7 +130,7 @@ bool GraphSearch::FloydShortestPath(SGraph *graph, vexsPre2DTabel *pointsPreTabl
                 if ((*distancesSumTable)[v][w] > (*distancesSumTable)[v][k] + (*distancesSumTable)[k][w])
                 {
                     (*distancesSumTable)[v][w] = (*distancesSumTable)[v][k] + (*distancesSumTable)[k][w];
-                    (*pointsPreTable)[v][w]    = (*pointsPreTable)[v][k];//路径设置为净多下标为k的顶点
+                    (*vexPreTable)[v][w]    = (*vexPreTable)[v][k];//路径设置为净多下标为k的顶点
                 }
             }
         }
@@ -179,8 +187,8 @@ bool GraphSearch::InitGraph(SGraph *graph, int xMax, int yMax)
             int y1 = point1.yLineIndex;
             int x0 = point0.xLineIndex;
             int y0 = point0.yLineIndex;
-            int p0 = x0 + y0 * xMax;
-            int p1 = x1 + y1 * yMax;
+            int p0 = j ;//x0 + y0 * xMax;
+            int p1 = i ;//x1 + y1 * yMax;
 
             if(x1 - x0 == 1 && y0 - y1 == 0)
             {

@@ -3,8 +3,8 @@
 
 #include <string>
 
-#define XNUM        4
-#define YNUM        4
+#define XNUM        8
+#define YNUM        10
 
 #define NumVertex   (XNUM * YNUM)
 #define Edges       (((XNUM-1) * YNUM) + ((YNUM - 1) * XNUM))
@@ -39,8 +39,8 @@ typedef struct
 
 } SGraph;
 
-typedef int     vexsPre2DTabel[NumVertex][NumVertex];//路径前驱下标列表
-typedef int     distancesSum2DTabel[NumVertex][NumVertex];//两点间最短路径“和“值列表
+typedef int     vexsPre2DTable[NumVertex][NumVertex];//路径前驱下标列表
+typedef int     distancesSum2DTable[NumVertex][NumVertex];//两点间最短路径“和“值列表
 typedef float   vexAngels[NumVertex];
 
 using namespace std;
@@ -50,14 +50,20 @@ class GraphSearch
 
 public:
     GraphSearch();
+    string FindShortestPath( int start, int end);
+
+private:
     void UpdateGraphWeights(SGraph *gragh, int start, int end);
-    void PrintShortestPath(SGraph *graph, vexsPre2DTabel *vexPreTable, distancesSum2DTabel *distancesSumTable);
-    string FindShortestPath(SGraph *graph, int start, int end, vexsPre2DTabel *vexPres, vexAngels *angels);
-    bool FloydShortestPath(SGraph *graph, vexsPre2DTabel *points2, distancesSum2DTabel *distances2);
+    void PrintShortestPath(SGraph *graph, vexsPre2DTable *vexPreTable, distancesSum2DTable *distancesSumTable);
+    //string FindShortestPath(SGraph *graph, int start, int end, vexsPre2DTable *vexPreTable, vexAngels *finalAngels);
+    bool FloydShortestPath(SGraph *graph, vexsPre2DTable *vexPreTable, distancesSum2DTable *distancesSumTable);
     bool InitGraph(SGraph *graph, int xMax, int yMax);
 
 private:
     SGraph m_graph;
+    vexsPre2DTable vexPreTable ;
+    distancesSum2DTable distancesSumTable ;
+    vexAngels finalAngels ;
 };
 
 #endif // FLOYD_H
