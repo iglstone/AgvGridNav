@@ -1,6 +1,8 @@
 #ifndef GRAPHSEARCH_H
 #define GRAPHSEARCH_H
 
+#include <string>
+
 #define XNUM        4
 #define YNUM        4
 
@@ -41,18 +43,21 @@ typedef int     vexsPre2DTabel[NumVertex][NumVertex];//路径前驱下标列表
 typedef int     distancesSum2DTabel[NumVertex][NumVertex];//两点间最短路径“和“值列表
 typedef float   vexAngels[NumVertex];
 
+using namespace std;
+
 class GraphSearch
 {
+
 public:
     GraphSearch();
-    void PreventTheWay(SGraph *gragh, int start, int end);
+    void UpdateGraphWeights(SGraph *gragh, int start, int end);
     void PrintShortestPath(SGraph *graph, vexsPre2DTabel *vexPreTable, distancesSum2DTabel *distancesSumTable);
-    void FindShortestPath(SGraph *graph, int start, int end, vexsPre2DTabel *vexPres, vexAngels *angels);
-    bool FloyeShortestPath(SGraph *graph, vexsPre2DTabel *points2, distancesSum2DTabel *distances2);
+    string FindShortestPath(SGraph *graph, int start, int end, vexsPre2DTabel *vexPres, vexAngels *angels);
+    bool FloydShortestPath(SGraph *graph, vexsPre2DTabel *points2, distancesSum2DTabel *distances2);
     bool InitGraph(SGraph *graph, int xMax, int yMax);
 
 private:
-    SGraph *graph;
+    SGraph m_graph;
 };
 
 #endif // FLOYD_H
