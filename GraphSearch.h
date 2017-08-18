@@ -10,11 +10,12 @@
 #define Edges       (((XNUM-1) * YNUM) + ((YNUM - 1) * XNUM))
 
 enum ForWord{
-    ForWord_Self  = 0,
-    ForWord_Front = 1,
-    ForWord_Up    = 2,
-    ForWord_Back  = 3,
-    ForWord_Down  = 4
+    ForWord_Self    = 0,
+    ForWord_Front   = 1,
+    ForWord_Up      = 2,
+    ForWord_Back    = 3,
+    ForWord_Down    = 4,
+    ForWord_Unknow  = 5
 };
 
 typedef struct
@@ -51,8 +52,11 @@ class GraphSearch
 public:
     GraphSearch();
     string FindShortestPath( int start, int end);
+    bool UpdateGraphWeights(int vexP0, bool heavy);
 
 private:
+    void HeavyGraphWeights(int vexP0);
+    void LightGraphWeights(int vexP0);
     void UpdateGraphWeights(SGraph *gragh, int start, int end);
     void PrintShortestPath(SGraph *graph, vexsPre2DTable *vexPreTable, distancesSum2DTable *distancesSumTable);
     //string FindShortestPath(SGraph *graph, int start, int end, vexsPre2DTable *vexPreTable, vexAngels *finalAngels);
