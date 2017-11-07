@@ -8,14 +8,14 @@
 #include <mutex>
 
 #define INTMAX          65535
-#define WEIGHT_HEAVY    100
+#define WEIGHT_HEAVY    4
 #define WEIGHT_NORMAL   1
 #define WEIGHT_LIGHT    1
 #define WEIGHT_ZERO     0
 
 std :: mutex mtx;
 
-GraphSearch::GraphSearch()
+carNavAlgrithm::carNavAlgrithm()
 {
 //    vexsPre2DTable vexPreTable = {0};
 //    distancesSum2DTable distancesSumTable = {0};
@@ -27,13 +27,16 @@ GraphSearch::GraphSearch()
 
     memset(vexPreTable,0,sizeof(vexPreTable));
     memset(distancesSumTable,0,sizeof(distancesSumTable));
-    memset(finalAngels,0,sizeof(finalAngels));
+    memset(finalAngels,10,sizeof(finalAngels));
+    //finalAngels = {50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50};
 
     this->InitGraph(&m_graph, XNUM, YNUM);
+
     this->FloydShortestPath(&m_graph, &vexPreTable, &distancesSumTable);
+//    this->DijkstraShortestPath(&m_graph, 1, 11);
 
     // use like this:
-    string path = this->FindShortestPath( 13, 7);
+    string path = this->FindShortestPath( 1, 11);
     std::cout << path << std::endl;
 
 //    12--13--14--15
@@ -45,11 +48,11 @@ GraphSearch::GraphSearch()
 //    0 --1 --2 --3
 
     //test 0-final path
-    this->PrintShortestPath(&m_graph, &vexPreTable, &distancesSumTable);
+//    this->PrintShortestPath(&m_graph, &vexPreTable, &distancesSumTable);
 
 }
 
-bool GraphSearch::UpdateGraphWeights(int vexP0, bool heavy)
+bool carNavAlgrithm::UpdateGraphWeights(int vexP0, bool heavy)
 {
     if (!mtx.try_lock())
     {
@@ -67,7 +70,7 @@ bool GraphSearch::UpdateGraphWeights(int vexP0, bool heavy)
     return true;
 }
 
-void GraphSearch::HeavyGraphWeights(int vexP0)
+void carNavAlgrithm::HeavyGraphWeights(int vexP0)
 {
     int x = m_graph.vertex[vexP0].xLineIndex;
     int y = m_graph.vertex[vexP0].yLineIndex;
@@ -105,7 +108,7 @@ void GraphSearch::HeavyGraphWeights(int vexP0)
     }
 }
 
-void GraphSearch::LightGraphWeights(int vexP0)
+void carNavAlgrithm::LightGraphWeights(int vexP0)
 {
     int x = m_graph.vertex[vexP0].xLineIndex;
     int y = m_graph.vertex[vexP0].yLineIndex;
@@ -143,7 +146,7 @@ void GraphSearch::LightGraphWeights(int vexP0)
     }
 }
 
-void GraphSearch::UpdateGraphWeights(SGraph *gragh, int point0, int point1)
+void carNavAlgrithm::UpdateGraphWeights(SGraph *gragh, int point0, int point1)
 {
     int weight = gragh ->edges[point0][point1].weight;
     if (weight == INTMAX) {
@@ -156,14 +159,14 @@ void GraphSearch::UpdateGraphWeights(SGraph *gragh, int point0, int point1)
     //gragh.weightAndAngels[end][start].weight = INTMAX;//反方向给堵住
 }
 
-string GraphSearch::FindShortestPath(int start, int end)
+string carNavAlgrithm::FindShortestPath(int start, int end)
 {
     int pointIndexFirst =  vexPreTable[start][end];//robot.pointNum;
     int angelOfStart = m_graph.edges[start][pointIndexFirst].angel;
-    printf("%d -> (%d)%d -> ",start, angelOfStart, pointIndexFirst);
+    //printf("%d -> (%d)%d -> ",start, angelOfStart, pointIndexFirst);
 
     ostringstream ostr;
-    ostr << start <<" -> (" << angelOfStart <<")" << pointIndexFirst << " -> (";
+    ostr << start <<"." << angelOfStart <<" -> " << pointIndexFirst << ".";
 
     while (pointIndexFirst != end)
     {
@@ -171,18 +174,97 @@ string GraphSearch::FindShortestPath(int start, int end)
         pointIndexFirst = vexPreTable[pointIndexFirst][end];     // get next vertex
         int angelOfFirst = m_graph.edges[pointIndexSaveFirst][pointIndexFirst].angel;    //turn angel , not final angel
 
-        printf("(%d)%d -> ",angelOfFirst, pointIndexFirst);
-        ostr << angelOfFirst << ")" << pointIndexFirst << " -> (" ;
+        //printf("(%d)%d -> ",angelOfFirst, pointIndexFirst);
+        ostr << angelOfFirst << " -> " << pointIndexFirst << "." ;
     }
-    printf("endAngel : %f \n", (finalAngels)[end]);
-    ostr << "AngelsEnd:" << (finalAngels)[end] << ")" << std::endl;
+    //printf("endAngel : %f \n", (finalAngels)[end]);
+    ostr << (finalAngels)[end] << std::endl;
 
     string tem = ostr.str();
 
     return tem;
 }
 
-bool GraphSearch::FloydShortestPath(SGraph *graph, vexsPre2DTable *vexPreTable, distancesSum2DTable *distancesSumTable)
+//string GraphSearch::FindShortestPath(int start, int end)
+//{
+//    int pointIndexFirst =  vexPreTable[start][end];//robot.pointNum;
+//    int angelOfStart = m_graph.edges[start][pointIndexFirst].angel;
+//    printf("%d -> (%d)%d -> ",start, angelOfStart, pointIndexFirst);
+
+//    ostringstream ostr;
+//    ostr << start <<" -> (" << angelOfStart <<")" << pointIndexFirst << " -> (";
+
+//    while (pointIndexFirst != end)
+//    {
+//        int pointIndexSaveFirst = pointIndexFirst;
+//        pointIndexFirst = vexPreTable[pointIndexFirst][end];     // get next vertex
+//        int angelOfFirst = m_graph.edges[pointIndexSaveFirst][pointIndexFirst].angel;    //turn angel , not final angel
+
+//        printf("(%d)%d -> ",angelOfFirst, pointIndexFirst);
+//        ostr << angelOfFirst << ")" << pointIndexFirst << " -> (" ;
+//    }
+//    printf("endAngel : %f \n", (finalAngels)[end]);
+//    ostr << "AngelsEnd:" << (finalAngels)[end] << ")" << std::endl;
+
+//    string tem = ostr.str();
+
+//    return tem;
+//}
+
+void carNavAlgrithm::DijkstraShortestPath(SGraph *graph, int start, int end)
+{
+    int vexMaxNum = graph->numVertexes;
+    bool S[vexMaxNum]; // 判断是否已存入该点到S集合中
+    int prev[vexMaxNum];
+    int  n = vexMaxNum;
+    int dist[vexMaxNum];
+
+    for(int i = 0; i < vexMaxNum; i++)
+    {
+        dist[i] = graph->edges[start][i].weight;
+        S[i] = false; // 初始都未用过该点
+        if(dist[i] == INTMAX || dist[i] == WEIGHT_ZERO)
+            prev[i] = -1;
+        else
+            prev[i] = start;
+    }
+
+    dist[start] = 0;
+    S[start] = true;
+
+    for(int i = 0; i < n; i++)
+    {
+         int mindist = INTMAX;
+         int u = start; // 找出当前未使用的点j的dist[j]最小值
+         for(int j = 0; j < n; j++)
+         {
+             if(j == u) continue;
+             if((!S[j]) && dist[j] < mindist)
+             {
+                   u = j; // u保存当前邻接点中距离最小的点的号码
+                   mindist = dist[j];
+             }
+         }
+
+         S[u] = true;
+
+         for(int j=0; j<n; j++)
+         {
+             if((!S[j]) && graph->edges[u][j].weight < INTMAX && graph->edges[u][j].weight != WEIGHT_ZERO)
+             {
+                 if(dist[u] + graph->edges[u][j].weight < dist[j])     //在通过新加入的u点路径找到离v0点更短的路径
+                 {
+                     dist[j] = dist[u] + graph->edges[u][j].weight;    //更新dist
+                     prev[j] = u;                    //记录前驱顶点
+                     printf(" distances:%d pre:%d ", dist[j], u);
+                 }
+             }
+         }
+    }
+
+}
+
+bool carNavAlgrithm::FloydShortestPath(SGraph *graph, vexsPre2DTable *vexPreTable, distancesSum2DTable *distancesSumTable)
 {
     if (!mtx.try_lock())
     {
@@ -225,7 +307,7 @@ bool GraphSearch::FloydShortestPath(SGraph *graph, vexsPre2DTable *vexPreTable, 
     return true;
 }
 
-bool GraphSearch::InitGraph(SGraph *graph, int xMax, int yMax)
+bool carNavAlgrithm::InitGraph(SGraph *graph, int xMax, int yMax)
 {
     graph->numVertexes = xMax * yMax;
 
@@ -302,12 +384,12 @@ bool GraphSearch::InitGraph(SGraph *graph, int xMax, int yMax)
     }
 
     //test
-    //graph->edges[1][2].weight = 10;
+    //graph->edges[1][2].weight = WEIGHT_HEAVY;
     return true;
 
 }
 
-void GraphSearch::PrintShortestPath(SGraph *graph, vexsPre2DTable *vexPreTable, distancesSum2DTable *distancesSumTable)
+void carNavAlgrithm::PrintShortestPath(SGraph *graph, vexsPre2DTable *vexPreTable, distancesSum2DTable *distancesSumTable)
 {
     int v,w,k;
     //    for (v  = 0; v < graph->numVertexes; v++) {
@@ -316,12 +398,12 @@ void GraphSearch::PrintShortestPath(SGraph *graph, vexsPre2DTable *vexPreTable, 
         for (w = v+1; w < graph->numVertexes; w++)
         {
             printf("%d -> %d(length:%d), ",v,w,(*distancesSumTable)[v][w]);
-            k = (*vexPreTable)[v][w];       //get the first point
-            printf("path: %d",v);        // log sorce point
+            k = (*vexPreTable)[v][w];       // get the first point
+            printf("path: %d",v);           // log sorce point
             while (k != w)
             {
-                printf("-> %d ",k);       // log vertex
-                k = (*vexPreTable)[k][w];   //get next vertex point
+                printf("-> %d ",k);         // log vertex
+                k = (*vexPreTable)[k][w];   // get next vertex point
             }
             printf("-> %d \n",w);           // log final point
         }

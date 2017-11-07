@@ -3,8 +3,8 @@
 
 #include <string>
 
-#define XNUM        8
-#define YNUM        10
+#define XNUM        4
+#define YNUM        4
 
 #define NumVertex   (XNUM * YNUM)
 #define Edges       (((XNUM-1) * YNUM) + ((YNUM - 1) * XNUM))
@@ -37,6 +37,7 @@ typedef struct
     SPointXY vertex[NumVertex];
     SWeightAngel edges[NumVertex][NumVertex];
     int numVertexes;
+    int vertexTag[NumVertex]; //对应的二维码Tag序列号
 
 } SGraph;
 
@@ -46,11 +47,11 @@ typedef float   vexAngels[NumVertex];
 
 using namespace std;
 
-class GraphSearch
+class carNavAlgrithm
 {
 
 public:
-    GraphSearch();
+    carNavAlgrithm();
     string FindShortestPath( int start, int end);
     bool UpdateGraphWeights(int vexP0, bool heavy);
 
@@ -61,10 +62,11 @@ private:
     void PrintShortestPath(SGraph *graph, vexsPre2DTable *vexPreTable, distancesSum2DTable *distancesSumTable);
     //string FindShortestPath(SGraph *graph, int start, int end, vexsPre2DTable *vexPreTable, vexAngels *finalAngels);
     bool FloydShortestPath(SGraph *graph, vexsPre2DTable *vexPreTable, distancesSum2DTable *distancesSumTable);
+    void DijkstraShortestPath(SGraph *graph, int start, int end);
     bool InitGraph(SGraph *graph, int xMax, int yMax);
 
 private:
-    SGraph m_graph;
+    SGraph m_graph ;
     vexsPre2DTable vexPreTable ;
     distancesSum2DTable distancesSumTable ;
     vexAngels finalAngels ;

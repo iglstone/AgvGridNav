@@ -1,9 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include "serial485.h"
-#include "GraphSearch.h"
-
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -11,12 +8,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->setupUi(this);
 
-    GraphSearch *graphSearch = new GraphSearch();
+//    carNavAlgrithm *graphSearch = new carNavAlgrithm();
 
-/*
+
     this->plot = new plotter;
-    this->setCentralWidget(this->plot);  
-*/
+    this->setCentralWidget(this->plot);
+
 
 /*
     Serial485 *se = new Serial485();

@@ -31,8 +31,7 @@ SOURCES += main.cpp\
     ros_pgv100.cpp \
     Rs485.cpp \
     serial485.cpp \
-    GraphSearch.cpp
-
+    GraphSearch.cpp \
 HEADERS  += mainwindow.h \
     plotter.h \
     Measure.h \
@@ -40,6 +39,6 @@ HEADERS  += mainwindow.h \
     Rs485.h \
     cserial.h \
     serial485.h \
-    GraphSearch.h
+    GraphSearch.h \
 
 FORMS    += mainwindow.ui
